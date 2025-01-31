@@ -1,13 +1,13 @@
-"use client";
+"use client"
 
-import React, { useState, useEffect } from 'react';
-import MarkdownIt from 'markdown-it';
-import MdEditor from 'react-markdown-editor-lite';
-import 'react-markdown-editor-lite/lib/index.css';
-import { useAuth } from '@/components/AuthProvider';
-import { doc, setDoc, getDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { formatDate } from '@/lib/utils';
+import { useState, useEffect } from "react"
+import MarkdownIt from "markdown-it"
+import MdEditor from "react-markdown-editor-lite"
+import "react-markdown-editor-lite/lib/index.css"
+import { useAuth } from "@/components/AuthProvider"
+import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore"
+import { db } from "@/lib/firebase"
+import { formatDate } from "@/lib/utils"
 import {
   Clock,
   List,
@@ -19,8 +19,17 @@ import {
   AlertTriangle,
   Check,
   Loader,
-} from 'lucide-react';
-import EmojiPicker from 'emoji-picker-react';
+  ChevronDown,
+  Plus,
+  FileText,
+  ImageIcon,
+  Table,
+  Code,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react"
+import EmojiPicker from "emoji-picker-react"
+import TableOfContents from "./TableOfContents"
 
 // Initialize markdown parser
 const mdParser = new MarkdownIt({
@@ -28,148 +37,254 @@ const mdParser = new MarkdownIt({
   html: true,
   linkify: true,
   typographer: true,
-});
+})
 
-export default function Editor({ noteId = 'new', onNoteDeleted }) {
-  const { user } = useAuth();
+export default function Editor({ noteId = "new", onNoteDeleted }) {
+  const { user } = useAuth()
   const [note, setNote] = useState({
-    title: '',
-    content: '',
+    title: "",
+    content: "",
     tags: [],
+    blocks: [],
     updatedAt: new Date().toISOString(),
-    userId: user?.uid || '',
-  });
-  const [newTag, setNewTag] = useState('');
-  const [showToc, setShowToc] = useState(false);
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showModal, setShowModal] = useState(null);
-  const [saving, setSaving] = useState(false);
+    userId: user?.uid || "",
+  })
+  const [newTag, setNewTag] = useState("")
+  const [showToc, setShowToc] = useState(false)
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+  const [showModal, setShowModal] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [showBlockMenu, setShowBlockMenu] = useState(false)
 
   useEffect(() => {
     const fetchNote = async () => {
-      if (user && noteId !== 'new') {
+      if (user && noteId !== "new") {
         try {
-          const noteDoc = await getDoc(doc(db, 'notes', noteId));
+          const noteDoc = await getDoc(doc(db, "notes", noteId))
           if (noteDoc.exists()) {
-            setNote(noteDoc.data());
+            setNote(noteDoc.data())
           }
         } catch (error) {
-          showNotification('Error', 'Failed to load note', 'error');
+          showNotification("Error", "Failed to load note", "error")
         }
       }
-    };
-    fetchNote();
-  }, [user, noteId]);
+    }
+    fetchNote()
+  }, [user, noteId])
 
-  const showNotification = (title, message, type = 'info') => {
+  const showNotification = (title, message, type = "info") => {
     setShowModal({
       title,
       message,
       type,
-      onClose: () => setShowModal(null)
-    });
-    
-    if (type !== 'error') {
-      setTimeout(() => setShowModal(null), 3000);
+      onClose: () => setShowModal(null),
+    })
+
+    if (type !== "error") {
+      setTimeout(() => setShowModal(null), 3000)
     }
-  };
+  }
 
   const handleEditorChange = ({ text }) => {
-    setNote(prev => ({ ...prev, content: text }));
-  };
+    setNote((prev) => ({ ...prev, content: text }))
+  }
 
   const saveNote = async () => {
-    if (!user) return;
-    setSaving(true);
+    if (!user) return
+    setSaving(true)
     try {
-      const timestamp = new Date().toISOString();
-      const docId = noteId === 'new' ? Date.now().toString() : noteId;
-      await setDoc(doc(db, 'notes', docId), {
-        ...note,
-        updatedAt: timestamp,
-        userId: user.uid,
-      }, { merge: true });
-      setNote(prev => ({ ...prev, updatedAt: timestamp }));
-      showNotification('Success', 'Note saved successfully', 'success');
+      const timestamp = new Date().toISOString()
+      const docId = noteId === "new" ? Date.now().toString() : noteId
+      await setDoc(
+        doc(db, "notes", docId),
+        {
+          ...note,
+          updatedAt: timestamp,
+          userId: user.uid,
+        },
+        { merge: true },
+      )
+      setNote((prev) => ({ ...prev, updatedAt: timestamp }))
+      showNotification("Success", "Note saved successfully", "success")
     } catch (error) {
-      showNotification('Error', 'Failed to save note', 'error');
+      showNotification("Error", "Failed to save note", "error")
     } finally {
-      setSaving(false);
+      setSaving(false)
     }
-  };
+  }
 
   const handleDeleteNote = () => {
     setShowModal({
-      title: 'Delete Note',
-      message: 'Are you sure you want to delete this note? This action cannot be undone.',
-      type: 'warning',
+      title: "Delete Note",
+      message: "Are you sure you want to delete this note? This action cannot be undone.",
+      type: "warning",
       showConfirm: true,
       onConfirm: confirmDeleteNote,
-      onClose: () => setShowModal(null)
-    });
-  };
+      onClose: () => setShowModal(null),
+    })
+  }
 
   const confirmDeleteNote = async () => {
     try {
-      await deleteDoc(doc(db, 'notes', noteId));
-      showNotification('Success', 'Note deleted successfully', 'success');
+      await deleteDoc(doc(db, "notes", noteId))
+      showNotification("Success", "Note deleted successfully", "success")
       if (onNoteDeleted) {
-        onNoteDeleted();
+        onNoteDeleted()
       }
     } catch (error) {
-      showNotification('Error', 'Failed to delete note', 'error');
+      showNotification("Error", "Failed to delete note", "error")
     }
-  };
+  }
 
   const addTag = () => {
     if (newTag && !note.tags.includes(newTag)) {
-      setNote(prev => ({ ...prev, tags: [...prev.tags, newTag] }));
-      setNewTag('');
+      setNote((prev) => ({ ...prev, tags: [...prev.tags, newTag] }))
+      setNewTag("")
     }
-  };
+  }
 
   const removeTag = (tagToRemove) => {
-    setNote(prev => ({
+    setNote((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove),
-    }));
-  };
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+    }))
+  }
 
   const handleEmojiClick = (emojiData) => {
-    const editor = document.querySelector('.rc-md-editor textarea');
+    const editor = document.querySelector(".rc-md-editor textarea")
     if (editor) {
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      const text = note.content;
-      const newText = text.substring(0, start) + emojiData.emoji + text.substring(end);
-      setNote(prev => ({ ...prev, content: newText }));
-      
+      const start = editor.selectionStart
+      const end = editor.selectionEnd
+      const text = note.content
+      const newText = text.substring(0, start) + emojiData.emoji + text.substring(end)
+      setNote((prev) => ({ ...prev, content: newText }))
+
       // Restore cursor position after emoji insertion
       setTimeout(() => {
-        editor.selectionStart = editor.selectionEnd = start + emojiData.emoji.length;
-        editor.focus();
-      }, 0);
+        editor.selectionStart = editor.selectionEnd = start + emojiData.emoji.length
+        editor.focus()
+      }, 0)
     }
-    setShowEmojiPicker(false);
-  };
+    setShowEmojiPicker(false)
+  }
+
+  const addBlock = (type) => {
+    const newBlock = { id: Date.now(), type, content: "" }
+    setNote((prev) => ({
+      ...prev,
+      blocks: [...prev.blocks, newBlock],
+    }))
+    setShowBlockMenu(false)
+  }
+
+  const updateBlock = (id, content) => {
+    setNote((prev) => ({
+      ...prev,
+      blocks: prev.blocks.map((block) => (block.id === id ? { ...block, content } : block)),
+    }))
+  }
+
+  const removeBlock = (id) => {
+    setNote((prev) => ({
+      ...prev,
+      blocks: prev.blocks.filter((block) => block.id !== id),
+    }))
+  }
+
+  const moveBlock = (id, direction) => {
+    const blocks = note.blocks || []
+    const index = blocks.findIndex((block) => block.id === id)
+    if ((direction === "up" && index > 0) || (direction === "down" && index < blocks.length - 1)) {
+      const newBlocks = [...blocks]
+      const [movedBlock] = newBlocks.splice(index, 1)
+      newBlocks.splice(direction === "up" ? index - 1 : index + 1, 0, movedBlock)
+      setNote((prev) => ({ ...prev, blocks: newBlocks }))
+    }
+  }
+
+  const renderBlock = (block, index) => {
+    switch (block.type) {
+      case "text":
+        return (
+          <textarea
+            value={block.content}
+            onChange={(e) => updateBlock(block.id, e.target.value)}
+            className="w-full p-2 border rounded"
+            placeholder="Type your text here..."
+          />
+        )
+      case "image":
+        return (
+          <div>
+            <input
+              type="text"
+              value={block.content}
+              onChange={(e) => updateBlock(block.id, e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Enter image URL"
+            />
+            {block.content && (
+              <img src={block.content || "/placeholder.svg"} alt="Block content" className="mt-2 max-w-full h-auto" />
+            )}
+          </div>
+        )
+      case "table":
+        return (
+          <div>
+            <textarea
+              value={block.content}
+              onChange={(e) => updateBlock(block.id, e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Enter table data (CSV format)"
+            />
+            {block.content && (
+              <table className="mt-2 w-full border-collapse border border-gray-300">
+                <tbody>
+                  {block.content.split("\n").map((row, i) => (
+                    <tr key={i}>
+                      {row.split(",").map((cell, j) => (
+                        <td key={j} className="border border-gray-300 p-2">
+                          {cell.trim()}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        )
+      case "code":
+        return (
+          <textarea
+            value={block.content}
+            onChange={(e) => updateBlock(block.id, e.target.value)}
+            className="w-full p-2 border rounded font-mono"
+            placeholder="Enter your code here..."
+          />
+        )
+      default:
+        return null
+    }
+  }
 
   if (!user) {
-    return <div className="flex items-center justify-center h-screen">Please sign in to access notes.</div>;
+    return <div className="flex items-center justify-center h-screen">Please sign in to access notes.</div>
   }
 
   return (
     <div className="max-w-6xl mx-auto p-6 relative">
       <div className="bg-white rounded-lg shadow-lg p-6">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <input
             type="text"
             value={note.title}
-            onChange={(e) => setNote(prev => ({ ...prev, title: e.target.value }))}
+            onChange={(e) => setNote((prev) => ({ ...prev, title: e.target.value }))}
             placeholder="Note title"
-            className="w-full p-3 text-2xl font-bold border-b focus:border-blue-500 focus:outline-none"
+            className="w-full sm:w-auto p-3 text-2xl font-bold border-b focus:border-blue-500 focus:outline-none"
           />
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center text-sm text-gray-500">
               <Clock size={16} className="mr-1" />
               Last saved: {formatDate(note.updatedAt)}
@@ -194,19 +309,15 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
                       <span className="font-medium">Pick an emoji</span>
                       <button
                         onClick={(e) => {
-                          e.stopPropagation();
-                          setShowEmojiPicker(false);
+                          e.stopPropagation()
+                          setShowEmojiPicker(false)
                         }}
                         className="p-1 hover:bg-gray-100 rounded"
                       >
                         <X size={16} />
                       </button>
                     </div>
-                    <EmojiPicker
-                      onEmojiClick={handleEmojiClick}
-                      width={320}
-                      height={400}
-                    />
+                    <EmojiPicker onEmojiClick={handleEmojiClick} width={320} height={400} />
                   </div>
                 </div>
               )}
@@ -222,15 +333,19 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
         </div>
 
         {/* Editor */}
-        <div className="relative">
+        <div className="relative mb-6">
           <MdEditor
             value={note.content}
-            renderHTML={text => mdParser.render(text)}
+            renderHTML={(text) => mdParser.render(text)}
             onChange={handleEditorChange}
-            className="h-[500px] border rounded-lg"
+            className="h-[300px] border rounded-lg"
             view={{ menu: true, md: true, html: true }}
           />
         </div>
+
+        {/* Blocks */}
+
+     
 
         {/* Tags */}
         <div className="mt-4 flex items-center gap-2">
@@ -239,14 +354,11 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
             type="text"
             value={newTag}
             onChange={(e) => setNewTag(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && addTag()}
+            onKeyPress={(e) => e.key === "Enter" && addTag()}
             placeholder="Add a tag"
             className="flex-1 p-2 border rounded focus:border-blue-500 focus:outline-none"
           />
-          <button
-            onClick={addTag}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
+          <button onClick={addTag} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Add Tag
           </button>
         </div>
@@ -254,15 +366,9 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
         {/* Tag List */}
         <div className="mt-2 flex flex-wrap gap-2">
           {note.tags.map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100"
-            >
+            <span key={tag} className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-gray-100">
               #{tag}
-              <button
-                onClick={() => removeTag(tag)}
-                className="ml-2 text-gray-500 hover:text-red-500"
-              >
+              <button onClick={() => removeTag(tag)} className="ml-2 text-gray-500 hover:text-red-500">
                 <X size={14} />
               </button>
             </span>
@@ -275,15 +381,11 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
             onClick={saveNote}
             disabled={saving}
             className={`px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-2 ${
-              saving ? 'opacity-75 cursor-not-allowed' : ''
+              saving ? "opacity-75 cursor-not-allowed" : ""
             }`}
           >
-            {saving ? (
-              <Loader className="animate-spin" size={20} />
-            ) : (
-              <Save size={20} />
-            )}
-            {saving ? 'Saving...' : 'Save Note'}
+            {saving ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
+            {saving ? "Saving..." : "Save Note"}
           </button>
         </div>
       </div>
@@ -293,9 +395,9 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 max-w-full mx-4">
             <div className="flex items-center gap-3 mb-4">
-              {showModal.type === 'success' && <Check className="text-green-500" size={24} />}
-              {showModal.type === 'error' && <AlertTriangle className="text-red-500" size={24} />}
-              {showModal.type === 'warning' && <AlertTriangle className="text-yellow-500" size={24} />}
+              {showModal.type === "success" && <Check className="text-green-500" size={24} />}
+              {showModal.type === "error" && <AlertTriangle className="text-red-500" size={24} />}
+              {showModal.type === "warning" && <AlertTriangle className="text-yellow-500" size={24} />}
               <h3 className="text-lg font-semibold">{showModal.title}</h3>
             </div>
             <p className="text-gray-600 mb-6">{showModal.message}</p>
@@ -310,8 +412,8 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
                   </button>
                   <button
                     onClick={() => {
-                      showModal.onConfirm();
-                      setShowModal(null);
+                      showModal.onConfirm()
+                      setShowModal(null)
                     }}
                     className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                   >
@@ -331,9 +433,18 @@ export default function Editor({ noteId = 'new', onNoteDeleted }) {
           </div>
         </div>
       )}
+
+      {/* Table of Contents */}
+      {showToc && (
+        <div className="fixed right-4 top-20 w-64 bg-white rounded-lg shadow-lg p-4 max-h-[calc(100vh-6rem)] overflow-y-auto">
+          <TableOfContents content={note.content} />
+        </div>
+      )}
     </div>
-  );
+  )
 }
+
+
 
 /* "use client"
 
