@@ -12,7 +12,7 @@ export default function Hero() {
                 <span className="block text-indigo-600 xl:inline">synced</span>
               </h1>
               <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                Bacvy helps you organize your thoughts, projects, and more. Sync across all your devices and collaborate
+                Zacvy helps you organize your thoughts, projects, and more. Sync across all your devices and collaborate
                 with your team in real-time.
               </p>
               <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
@@ -42,7 +42,7 @@ export default function Hero() {
         <img
           className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
           src="https://chisellabs.com/blog/wp-content/uploads/2022/03/14.png?height=600&width=800"
-          alt="Bacvy dashboard"
+          alt="Zacvy dashboard"
         />
       </div>
     </div>
