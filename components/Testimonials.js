@@ -7,7 +7,7 @@ export default function Testimonials() {
             <blockquote className="mt-10">
               <div className="max-w-3xl mx-auto text-center text-2xl leading-9 font-medium text-gray-900">
                 <p>
-                  &ldquo;Bacvy has transformed the way our team collaborates. It's intuitive, fast, and helps us stay
+                  &ldquo;Zacvy has transformed the way our team collaborates. It's intuitive, fast, and helps us stay
                   organized. I can't imagine working without it now.&rdquo;
                 </p>
               </div>

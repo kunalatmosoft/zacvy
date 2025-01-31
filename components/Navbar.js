@@ -1,47 +1,39 @@
 "use client"
-import { useState } from "react"
-import { Menu, X } from "lucide-react"
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
 export default function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav
+      className={`fixed w-full z-50 transition-all duration-300 bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg`}
+    >      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           <div className="flex-shrink-0 flex items-center">
-            <img className="h-8 w-auto" src="https://img.freepik.com/premium-vector/black-abstract-geometrical-letter-z-icon-white-background_95164-12783.jpg" alt="Bacvy" />
+          <img className="h-8 w-auto" src="https://img.freepik.com/premium-vector/black-abstract-geometrical-letter-z-icon-white-background_95164-12783.jpg" alt="Bacvy" />
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-            <a
-              href="#"
-              className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-            >
-              Features
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-            >
-              Pricing
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-            >
-              Contact
-            </a>
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-4">
+              <a href="#" className="text-gray-800 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Home</a>
+              <a href="#features" className="text-gray-800 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Features</a>
+              <a href="#pricing" className="text-gray-800 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
+              <a href="#testimonials" className="text-gray-800 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Testimonials</a>
+            </div>
           </div>
-          <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium">Sign up</button>
+          <div className="hidden md:block">
+            <button className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-indigo-700 transition duration-300">Sign Up</button>
           </div>
-          <div className="-mr-2 flex items-center sm:hidden">
+          <div className="-mr-2 flex md:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
@@ -58,43 +50,22 @@ export default function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="sm:hidden">
-          <div className="pt-2 pb-3 space-y-1">
-            <a
-              href="#"
-              className="bg-indigo-50 border-indigo-500 text-indigo-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >
-              Home
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >
-              Features
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >
-              Pricing
-            </a>
-            <a
-              href="#"
-              className="border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700 block pl-3 pr-4 py-2 border-l-4 text-base font-medium"
-            >
-              Contact
-            </a>
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <a href="#" className="text-gray-800 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Home</a>
+            <a href="#features" className="text-gray-800 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Features</a>
+            <a href="#pricing" className="text-gray-800 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Pricing</a>
+            <a href="#testimonials" className="text-gray-800 hover:text-indigo-600 block px-3 py-2 rounded-md text-base font-medium">Testimonials</a>
           </div>
           <div className="pt-4 pb-3 border-t border-gray-200">
-            <div className="mt-3 space-y-1">
-              <button className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
-                Sign up
+            <div className="mt-3 px-2 space-y-1">
+              <button className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:text-indigo-600 hover:bg-gray-100">
+                Sign Up
               </button>
             </div>
           </div>
         </div>
       )}
     </nav>
-  )
+  );
 }
-

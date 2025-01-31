@@ -1,4 +1,4 @@
-import { Feather, Zap, Smartphone, Users } from "lucide-react"
+import { Feather, Zap, Smartphone, Users, Lock, Globe } from "lucide-react"
 
 export default function Features() {
   const features = [
@@ -21,6 +21,16 @@ export default function Features() {
       name: "Collaboration",
       description: "Work together with your team in real-time, no matter where you are.",
       icon: Users,
+    },
+    {
+      name: "Secure",
+      description: "Your data is encrypted and protected with industry-standard security measures.",
+      icon: Lock,
+    },
+    {
+      name: "Offline Access",
+      description: "Work offline and sync your changes when you're back online.",
+      icon: Globe,
     },
   ]
 

@@ -9,6 +9,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
+      <br/>
+      <br/>
+      <br/>
       <Hero />
       <Features />
       <Testimonials />
